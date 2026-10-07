@@ -1,0 +1,2 @@
+client_name,default_assignee,active,domain,contacts,asana_project_gid,brief_url,notes
+Example Client (delete this row),,FALSE,"example.com, example.ca","jane@agency.com, owner.name@gmail.com",1200000000000000,https://docs.google.com/document/d/EXAMPLE,domain = domains only this client mails from. contacts = exact addresses of anyone else who writes about this client.
