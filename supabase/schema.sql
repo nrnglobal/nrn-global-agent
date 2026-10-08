@@ -1,6 +1,10 @@
 -- NRN Email + Asana Agent — Supabase schema
 -- Run once in the SQL editor. Service role key is used by the agent.
 
+-- Scheduling and outbound HTTP. Safe to rerun.
+create extension if not exists pg_cron;
+create extension if not exists pg_net;
+
 -- Upgrade from the first version (one row per domain): keep the old rows aside, then create the new shape.
 do $$ begin
   if exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'agent_clients' and column_name = 'domain') then
@@ -83,7 +87,6 @@ insert into agent_settings (key, value) values
 on conflict (key) do nothing;
 
 -- pg_cron: call the Railway service. Replace URL and token.
--- Requires: create extension if not exists pg_cron; create extension if not exists pg_net;
 select cron.schedule('agent-capture', '*/10 * * * *', $$
   select net.http_post(
     url := 'https://YOUR-APP.up.railway.app/run/capture',
