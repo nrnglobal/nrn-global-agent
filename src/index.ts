@@ -77,7 +77,12 @@ app.post("/run/sync-clients", guard, async (req, res) => {
 
 // Slack Events API: message.channels in #agent. Only Neil (or approvers) trigger a run.
 app.post("/slack/events", async (req: any, res) => {
-  if (req.body.type === "url_verification") return res.send(req.body.challenge);
+  // Light audit of every inbound webhook; lets us debug Slack's handshake from the run log alone.
+  log(crypto.randomUUID(), "slack_reply", "webhook_received", {
+    type: req.body?.type, event: req.body?.event?.type, content_type: req.header("content-type"),
+    bytes: req.rawBody?.length ?? 0, has_sig: Boolean(req.header("X-Slack-Signature")),
+  }).catch(() => {});
+  if (req.body?.type === "url_verification") return res.type("text/plain").send(String(req.body.challenge ?? ""));
   const ts = req.header("X-Slack-Request-Timestamp") ?? "";
   const sig = req.header("X-Slack-Signature") ?? "";
   const base = `v0:${ts}:${req.rawBody}`;
