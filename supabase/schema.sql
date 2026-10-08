@@ -61,6 +61,14 @@ create table if not exists agent_pending (
   created_at      timestamptz not null default now()
 );
 
+-- Lock the tables down. The agent uses the service role key, which bypasses RLS; with RLS on and no
+-- policies, the anon and authenticated Data API roles can read nothing even though the tables are exposed.
+alter table agent_clients          enable row level security;
+alter table agent_sender_overrides enable row level security;
+alter table agent_settings         enable row level security;
+alter table agent_run_log          enable row level security;
+alter table agent_pending          enable row level security;
+
 insert into agent_settings (key, value) values
   ('mode',              '"dry_run"'),                         -- dry_run | live
   ('last_message_id',   'null'),

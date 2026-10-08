@@ -5,6 +5,20 @@ import { db } from "./db.js";
 
 const RUN_TYPES = ["capture", "brief", "slack_reply", "bootstrap", "sync_clients"] as const;
 
+// Credential expiry reminders. Set e.g. ANTHROPIC_KEY_EXPIRES=2027-06-01; warns from 30 days out.
+function credentialWarnings(now: number) {
+  const out: string[] = [];
+  for (const [name, env] of [["Anthropic API key", "ANTHROPIC_KEY_EXPIRES"]] as const) {
+    const raw = process.env[env];
+    if (!raw) continue;
+    const days = Math.floor((Date.parse(raw) - now) / 86400000);
+    if (Number.isNaN(days)) out.push(`${env} is not a valid date: ${raw}`);
+    else if (days < 0) out.push(`${name} expired ${-days} day(s) ago (${raw})`);
+    else if (days <= 30) out.push(`${name} expires in ${days} day(s) (${raw})`);
+  }
+  return out;
+}
+
 export async function statusSnapshot(running: boolean) {
   const since24h = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
   const [runs, recent, last24h, pending, settings, clients] = await Promise.all([
@@ -41,6 +55,7 @@ export async function statusSnapshot(running: boolean) {
   return {
     now: new Date(now).toISOString(),
     health: { ok: true, running },
+    warnings: credentialWarnings(now),
     runs: byType,
     actions_24h: counts24h,
     recent_actions: recent.data ?? [],
