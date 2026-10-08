@@ -8,6 +8,7 @@ import { asanaTools, slackTools } from "./tools/asana_slack.js";
 import { syncClients } from "./tools/sheet.js";
 import { briefTools } from "./tools/brief.js";
 import { statusSnapshot } from "./tools/status.js";
+import { SocketModeClient } from "@slack/socket-mode";
 
 const app = express();
 app.use(express.json({ verify: (req: any, _res, buf) => { req.rawBody = buf; } }));
@@ -90,11 +91,27 @@ app.post("/slack/events", async (req: any, res) => {
   if (Math.abs(Date.now() / 1000 - Number(ts)) > 300 || !crypto.timingSafeEqual(Buffer.from(mine), Buffer.from(sig))) return res.status(401).end();
   res.status(200).end(); // ack fast, work async
 
-  const ev = req.body.event;
-  if (!ev || ev.type !== "message" || ev.bot_id || ev.channel !== process.env.SLACK_AGENT_CHANNEL_ID) return;
+  handleSlackEvent(req.body.event);
+});
+
+// Shared by the HTTP Events API route and Socket Mode: only Neil's messages in #agent start a run.
+function handleSlackEvent(ev: any) {
+  if (!ev || ev.type !== "message" || ev.bot_id || ev.subtype || ev.channel !== process.env.SLACK_AGENT_CHANNEL_ID) return;
   if (ev.user !== process.env.SLACK_NEIL_USER_ID) return; // approvers list checked inside the skill for v2
   runAgent("slack_reply", `Run the slack-reply skill. Neil replied in #agent.\nthread_ts: ${ev.thread_ts ?? ev.ts}\nmessage_ts: ${ev.ts}\ntext: """${ev.text}"""`);
-});
+}
+
+// Socket Mode: Slack pushes events over a websocket we open, so no public Request URL is needed.
+// Enabled when SLACK_APP_TOKEN (xapp-…, scope connections:write) is set; the HTTP route above still works.
+if (process.env.SLACK_APP_TOKEN) {
+  const socket = new SocketModeClient({ appToken: process.env.SLACK_APP_TOKEN });
+  socket.on("message", async ({ event, ack }: any) => {
+    await ack();
+    log(crypto.randomUUID(), "slack_reply", "webhook_received", { via: "socket_mode", event: event?.type, subtype: event?.subtype }).catch(() => {});
+    handleSlackEvent(event);
+  });
+  socket.start().then(() => console.log("slack socket mode connected")).catch((e) => console.error("slack socket mode failed", e.message));
+}
 
 // Read-only snapshot for the status dashboard. Separate token so a reader can never trigger a run.
 const statusGuard = (req: express.Request, res: express.Response, next: express.NextFunction) =>
