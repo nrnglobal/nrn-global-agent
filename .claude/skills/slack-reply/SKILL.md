@@ -22,3 +22,6 @@ Input: `thread_ts`, `message_ts`, `text` from Neil. Only Neil's messages reach t
    - `<domain> → <project name>` — `config_add_client` for that row.
 3. Anything unparsed → reply in thread with what you understood and what you didn't. Never guess.
 4. Reply in the same thread (`slack_post(thread_ts=...)`) with one line per instruction handled. `log_action` each.
+
+## Sheet and brief changes
+A pending item of kind `sheet_change` holds a proposed edit (client, field or doc, before, after). `ok <code>` → call `sheet_update_client_field` or `brief_append_note` with `approved_by_message_ts` = this message's ts, mark the pending item done, reply in thread with before/after. `skip <code>` → mark skipped. If `settings.google_writes` is false the tool refuses; tell Neil the switch is off (`config_set google_writes true` turns it on).

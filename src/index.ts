@@ -7,6 +7,7 @@ import { gmailTools } from "./tools/gmail.js";
 import { asanaTools, slackTools } from "./tools/asana_slack.js";
 import { syncClients } from "./tools/sheet.js";
 import { briefTools } from "./tools/brief.js";
+import { gwriteTools } from "./tools/gwrite.js";
 import { statusSnapshot } from "./tools/status.js";
 import { SocketModeClient } from "@slack/socket-mode";
 
@@ -27,7 +28,7 @@ async function runAgent(runType: RunType, prompt: string) {
     const nrn = createSdkMcpServer({
       name: "nrn",
       version: "1.0.0",
-      tools: [...dbTools(runId, runType), ...gmailTools, ...asanaTools, ...slackTools, ...briefTools],
+      tools: [...dbTools(runId, runType), ...gmailTools, ...asanaTools, ...slackTools, ...briefTools, ...gwriteTools(runId, runType)],
     });
     let result = "";
     for await (const msg of query({

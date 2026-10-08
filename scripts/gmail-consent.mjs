@@ -13,8 +13,8 @@ if (!creds) { console.error("JSON has no 'installed' client; create a Desktop ap
 
 const SCOPES = [
   "https://www.googleapis.com/auth/gmail.modify",
-  "https://www.googleapis.com/auth/spreadsheets.readonly",
-  "https://www.googleapis.com/auth/documents.readonly",
+  "https://www.googleapis.com/auth/spreadsheets",   // read + write: clients sheet (writes gated by settings.google_writes)
+  "https://www.googleapis.com/auth/documents",      // read + write: client brief docs (same gate)
 ];
 
 const server = http.createServer();

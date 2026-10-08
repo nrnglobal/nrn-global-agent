@@ -83,7 +83,8 @@ insert into agent_settings (key, value) values
   ('tier_promotions',   '[]'),                                 -- categories moved to tier 1
   ('report_spam',       'false'),                              -- flip after the 2-week review
   ('confidence_floor',  '0.7'),
-  ('outreach_threshold','0.85')
+  ('outreach_threshold','0.85'),
+  ('google_writes',      'false')                              -- allow sheet_update_client_field / brief_append_note after Neil approves in #agent
 on conflict (key) do nothing;
 
 -- pg_cron: call the Railway service. Replace URL and token.
