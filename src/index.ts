@@ -13,6 +13,8 @@ const app = express();
 app.use(express.json({ verify: (req: any, _res, buf) => { req.rawBody = buf; } }));
 
 type RunType = "capture" | "brief" | "slack_reply" | "bootstrap";
+// Closed tool list: the agent's only capabilities. No shell, no file writes, no email send.
+const ALLOWED_TOOLS = ["mcp__nrn__*", "Skill", "Read"];
 let running = false;
 
 async function runAgent(runType: RunType, prompt: string) {
@@ -32,9 +34,13 @@ async function runAgent(runType: RunType, prompt: string) {
       options: {
         systemPrompt: SYSTEM_PROMPT,
         mcpServers: { nrn },
-        allowedTools: ["mcp__nrn__*", "Skill", "Read"],
+        allowedTools: ALLOWED_TOOLS,
         settingSources: ["project"],          // loads .claude/skills/*
-        permissionMode: "bypassPermissions",  // headless; tool list is the guardrail
+        permissionMode: "dontAsk",            // headless: anything not in ALLOWED_TOOLS is denied, never prompted
+        canUseTool: async (toolName) =>
+          ALLOWED_TOOLS.some((p) => (p.endsWith("*") ? toolName.startsWith(p.slice(0, -1)) : toolName === p))
+            ? { behavior: "allow" }
+            : { behavior: "deny", message: `Tool ${toolName} is not available to this agent.` },
         maxTurns: 150,
         model: process.env.AGENT_MODEL ?? "claude-sonnet-4-6",
       },

@@ -49,5 +49,5 @@ curl -H "X-Status-Token: …" https://<railway>/status | jq .runs
 
 ## Notes
 - Agent SDK option names (`systemPrompt`, `mcpServers`, `allowedTools`, `settingSources`, `permissionMode`) are current as of the SDK docs at build time; check `npm view @anthropic-ai/claude-agent-sdk` and the MCP page of the Agent SDK docs if a field is rejected.
-- `permissionMode: bypassPermissions` is safe here only because the tool list is closed: no shell, no file writes, no send.
+- `permissionMode: dontAsk` plus `canUseTool` means any tool outside `ALLOWED_TOOLS` is denied without a prompt. `bypassPermissions` is not used: the bundled CLI refuses it when the process runs as root, which Railway containers do.
 - Escalation and report-spam behaviour is controlled by `agent_settings`, not code.
