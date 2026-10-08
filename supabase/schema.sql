@@ -95,8 +95,8 @@ select cron.schedule('agent-capture', '*/10 * * * *', $$
   );
 $$);
 
--- 07:00 America/Toronto = 11:00 UTC (EDT) / 12:00 UTC (EST). Adjust twice a year or use two jobs.
-select cron.schedule('agent-brief', '0 11 * * 1-5', $$
+-- 08:00 America/Toronto = 12:00 UTC (EDT) / 13:00 UTC (EST). Adjust twice a year or use two jobs.
+select cron.schedule('agent-brief', '0 12 * * 1-5', $$
   select net.http_post(
     url := 'https://YOUR-APP.up.railway.app/run/brief',
     headers := '{"X-Run-Token":"REPLACE_ME"}'::jsonb,

@@ -1,6 +1,6 @@
 ---
 name: brief
-description: Build and post the 7:00 AM triage brief to #agent. Invoked by the brief run on weekdays.
+description: Build and post the 8:00 AM triage brief to #agent. Invoked by the brief run on weekdays.
 ---
 
 # Brief
