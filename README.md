@@ -31,8 +31,8 @@ The Google Sheet is the source of truth for clients; the agent reads the copy in
 curl -X POST -H "X-Run-Token: …" "https://<railway>/run/sync-clients?dry_run=1"   # report only
 curl -X POST -H "X-Run-Token: …" "https://<railway>/run/sync-clients"             # write
 ```
-- One row per client, and one Asana project per row. Row 1 headers, any order: `client_name`, `asana_project_gid`, `active` (required); `domain`, `contacts`, `default_assignee`, `brief_url`, `notes` (optional).
-- `domain`: domains this client mails from, comma-separated. When a row's `domain` is blank (or the column is absent) the sync uses `website_domain`. `contacts`: exact addresses of anyone else who writes about this client (agency staff, personal accounts), comma-separated.
+- One row per client, and one Asana project per row. Row 1 headers, any order: `client_name`, `asana_project_gid`, `active` (required); `website_domain`, `associated_domains`, `contacts`, `default_assignee`, `brief_url`, `notes` (optional).
+- `website_domain`: the client's site. `associated_domains`: any other domains their staff mail from, comma-separated (e.g. holland1916.com for Holland Nameplate). Both are matched; the union is the client's domain list. `contacts`: exact addresses of anyone else who writes about this client (agency staff, personal accounts), comma-separated.
 - A domain or contact may sit on several rows (an agency person on three clients, two teams under one parent). The response lists these under `shared`. For such mail the agent picks a client only on hard evidence in the email or thread, and otherwise asks in #agent.
 - `asana_project_gid` takes the number or the project URL. `default_assignee` takes an Asana user gid or name. `active` takes TRUE/FALSE or Yes/No.
 - Rows that fail a check are skipped and listed in the response.

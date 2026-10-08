@@ -50,7 +50,9 @@ export function parseClientRows(values: unknown[][], users: AsanaUser[]) {
     if (!asana_project_gid) return skip("no asana_project_gid");
     if (seen.has(asana_project_gid)) return skip(`Asana project ${asana_project_gid} is already used on an earlier row`);
     // domain is what the client mails from; when it is blank the website domain is the best guess.
-    const domains = list(cell("domain") || cell("website_domain")).map((d) => d.replace(/^@/, ""));
+    // Mail domains: website_domain plus any extra domains the client's staff write from
+    // ("associated_domains" in the sheet; "domain" accepted as an older name).
+    const domains = [...new Set(list([cell("website_domain"), cell("associated_domains") || cell("domain")].filter(Boolean).join(",")).map((d) => d.replace(/^@/, "")))];
     const badDomain = domains.find((d) => !DOMAIN.test(d));
     if (badDomain) return skip(`"${badDomain}" is not a domain`);
     const contacts = list(cell("contacts"));
