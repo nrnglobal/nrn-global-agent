@@ -33,3 +33,22 @@ export function parseSince(s: string | undefined, now = new Date()): { ok: true;
 export function shapeTask(t: AsanaTask): ContextTask {
   return { name: t.name, assignee: t.assignee?.name ?? null, due_on: t.due_on ?? null, modified_at: t.modified_at, permalink: t.permalink_url };
 }
+
+// Rows for the "Context (auto)" tab on the report sheet: one per client, tasks and threads flattened to one cell each.
+export type ContextThreadLite = { subject: string; from: string; date: string };
+export type ClientContextLite = { client_name: string; report_label?: string | null; asana_project_gid: string; open_tasks: ContextTask[]; ewise_threads: ContextThreadLite[] };
+
+function shortDate(rfc: string) {
+  const d = new Date(rfc);
+  return Number.isNaN(d.getTime()) ? rfc.slice(0, 11) : d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "America/New_York" });
+}
+function fromName(from: string) { return (from.split("<")[0].trim().replace(/"/g, "") || from).trim(); }
+
+export function contextRows(clients: ClientContextLite[], since: string, generatedAt: string): string[][] {
+  const header = ["report_label", "client_name", "asana_project_gid", "since", "generated_at", "open_tasks", "ewise_threads"];
+  return [header, ...clients.map((c) => [
+    c.report_label ?? "", c.client_name, c.asana_project_gid, since, generatedAt,
+    c.open_tasks.map((t) => `${t.name} (${t.assignee ?? "unassigned"}, due ${t.due_on ?? "none"})`).join("\n"),
+    c.ewise_threads.map((t) => `email ${shortDate(t.date)} ${t.subject} (${fromName(t.from)})`).join("\n"),
+  ])];
+}

@@ -9,7 +9,7 @@ import { syncClients } from "./tools/sheet.js";
 import { briefTools } from "./tools/brief.js";
 import { gwriteTools } from "./tools/gwrite.js";
 import { parseSince } from "./tools/context.js";
-import { clientContext } from "./tools/context_load.js";
+import { clientContext, writeContextTab } from "./tools/context_load.js";
 import { statusSnapshot } from "./tools/status.js";
 import { SocketModeClient } from "@slack/socket-mode";
 
@@ -77,6 +77,18 @@ app.post("/run/bootstrap", guard, async (_req, res) => {
 app.post("/run/sync-clients", guard, async (req, res) => {
   try { res.json(await syncClients(req.query.dry_run === "1")); }
   catch (e: any) { res.status(500).json({ error: e.message }); }
+});
+
+// Fill the "Context (auto)" tab on a report sheet for the eWise report routine. ?sheet=<id> (default: REPORT_SHEET_ID),
+// ?since=<YYYY-MM-DD> (default: 4 days ago). pg_cron calls this 15 minutes before the routine runs.
+app.post("/run/ewise-context", guard, async (req, res) => {
+  const sheet = String(req.query.sheet ?? process.env.REPORT_SHEET_ID ?? "");
+  if (!sheet) return res.status(400).json({ error: "sheet id required (?sheet= or REPORT_SHEET_ID)" });
+  const since = parseSince(typeof req.query.since === "string" ? req.query.since : new Date(Date.now() - 4 * 86400000).toISOString().slice(0, 10));
+  if (!since.ok) return res.status(400).json({ error: since.reason });
+  const runId = crypto.randomUUID();
+  try { res.json(await writeContextTab(sheet, since.date, (a, d) => log(runId, "ewise_context", a, d))); }
+  catch (e: any) { await log(runId, "ewise_context", "error", { message: e.message }); res.status(500).json({ error: e.message }); }
 });
 
 // Slack Events API: message.channels in #agent. Only Neil (or approvers) trigger a run.

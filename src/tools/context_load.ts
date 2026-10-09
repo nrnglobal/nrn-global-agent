@@ -41,3 +41,38 @@ export async function clientContext(asana_project_gid: string, since: Date) {
   }
   return { client, open_tasks, ewise_threads };
 }
+
+// Write the "Context (auto)" tab on a report sheet: one row per eWise client with a report_label.
+// Runs from pg_cron shortly before the report routine, which reads the tab through the Sheets connector
+// (the routine's sandbox cannot reach this service directly).
+import { contextRows } from "./context.js";
+
+export async function writeContextTab(spreadsheetId: string, since: Date, log?: (action: string, detail: unknown) => Promise<void>) {
+  const sheets = google.sheets({ version: "v4", auth });
+  const { data: sh } = await sheets.spreadsheets.values.get({ spreadsheetId: process.env.CLIENTS_SHEET_ID!, range: `'${process.env.CLIENTS_SHEET_TAB ?? "Account list"}'`, valueRenderOption: "UNFORMATTED_VALUE" });
+  const [hdr, ...rows] = sh.values ?? [];
+  const col = (n: string) => hdr.indexOf(n);
+  const targets = rows
+    .filter((r) => String(r[col("report_label")] ?? "").trim() && /ewisecommunications\.com/i.test(String(r[col("contacts")] ?? "")) && /^(yes|true|y|1)$/i.test(String(r[col("active")] ?? "")))
+    .map((r) => ({ gid: String(r[col("asana_project_gid")] ?? "").replace(/\D/g, ""), label: String(r[col("report_label")]) }));
+
+  const results = []; const errors: string[] = [];
+  for (const t of targets) {
+    try {
+      const c = await clientContext(t.gid, since);
+      results.push({ client_name: c.client.client_name, report_label: t.label, asana_project_gid: t.gid, open_tasks: c.open_tasks, ewise_threads: c.ewise_threads });
+    } catch (e: any) { errors.push(`${t.label}: ${e.message}`); }
+  }
+  const sinceStr = since.toISOString().slice(0, 10), generatedAt = new Date().toISOString();
+  const values = contextRows(results, sinceStr, generatedAt);
+  if (errors.length) values.push(["", "errors", "", sinceStr, generatedAt, errors.join("\n"), ""]);
+
+  const TAB = "Context (auto)";
+  const { data: meta } = await sheets.spreadsheets.get({ spreadsheetId, fields: "sheets.properties.title" });
+  if (!meta.sheets?.some((s) => s.properties?.title === TAB))
+    await sheets.spreadsheets.batchUpdate({ spreadsheetId, requestBody: { requests: [{ addSheet: { properties: { title: TAB } } }] } });
+  await sheets.spreadsheets.values.clear({ spreadsheetId, range: `'${TAB}'!A:G` });
+  await sheets.spreadsheets.values.update({ spreadsheetId, range: `'${TAB}'!A1`, valueInputOption: "RAW", requestBody: { values } });
+  await log?.("context_tab_written", { spreadsheetId, clients: results.length, errors });
+  return { tab: TAB, clients: results.length, errors, since: sinceStr, generated_at: generatedAt };
+}
