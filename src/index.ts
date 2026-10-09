@@ -8,6 +8,8 @@ import { asanaTools, slackTools } from "./tools/asana_slack.js";
 import { syncClients } from "./tools/sheet.js";
 import { briefTools } from "./tools/brief.js";
 import { gwriteTools } from "./tools/gwrite.js";
+import { parseSince } from "./tools/context.js";
+import { clientContext } from "./tools/context_load.js";
 import { statusSnapshot } from "./tools/status.js";
 import { SocketModeClient } from "@slack/socket-mode";
 
@@ -120,6 +122,16 @@ const statusGuard = (req: express.Request, res: express.Response, next: express.
 app.get("/status", statusGuard, async (_req, res) => {
   try { res.json(await statusSnapshot(running)); }
   catch (e: any) { res.status(500).json({ error: e.message }); }
+});
+
+// Read-only context for the eWise report routine: open Asana tasks + eWise email threads for one client since a date.
+app.get("/context", statusGuard, async (req, res) => {
+  const since = parseSince(typeof req.query.since === "string" ? req.query.since : undefined);
+  if (!since.ok) return res.status(400).json({ error: since.reason });
+  const gid = String(req.query.asana_project_gid ?? "").replace(/\D/g, "");
+  if (!gid) return res.status(400).json({ error: "asana_project_gid is required" });
+  try { res.json(await clientContext(gid, since.date)); }
+  catch (e: any) { res.status(e.status ?? 500).json({ error: e.message }); }
 });
 
 app.get("/health", (_req, res) => res.json({ ok: true, running }));
