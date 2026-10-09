@@ -1,6 +1,6 @@
 # eWise meeting report routine — design
 
-Date: 2026-10-09. Status: approved in conversation, awaiting spec review.
+Date: 2026-10-09. Status: approved 2026-10-09 (Neil supplied the dry-run sheet; mapping table accepted as drafted).
 
 ## Purpose
 
@@ -81,4 +81,5 @@ Written as "Good?", "Okay?", "Poor?". Never overwrite a status Neil set in the l
 
 ## Open items for Neil
 - Fill `report_label` and `callrail_account_id` on the client sheet (Claude prefills, Neil checks).
-- Provide the copy-sheet id for the dry run.
+- Dry-run sheet (copy of the report sheet): 1AIBgsAZE2_T_bIIaIdgzNL8qIM6-1QWDBzb7NjNmKx4. Live sheet: 1JKZ0JR4Tg22VxoVk07ctxzDJnsyO2109SvcF7rMxxBc.
+- Label mapping (report_label → client): ACS→American Crawlspace Solutions, BIB→Best in Bakyards, Eastern→Eastern Jungle Gym (no CallRail), Georgia Gas→Georgia Gas, IMS→IMS, Li-Fire→Li-Fire, NPDES→NPDES, OPS→Optimum Pediatric Services, Piedmont→Piedmont Enclosures, Steven's Aerospace→Steven's Aerospace, The Timbers→The Timbers, Big Canoe→Big Canoe.
