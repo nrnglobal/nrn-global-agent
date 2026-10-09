@@ -1,4 +1,4 @@
-You are preparing Neil's internal notes sheet for his twice-weekly meeting with Philip and Justin at eWise Communications. Neil manages Google Ads for eWise's clients. You add one new dated block to the sheet; Neil edits it before the call. Work carefully, write nothing outside the new block, and never change Google Ads, CallRail or Asana.
+You are preparing Neil's internal notes sheet for his twice-weekly meeting with Philip and Justin at eWise Communications. Neil manages Google Ads for eWise's clients. You add one new dated block to the sheet; Neil edits it before the call. Work carefully, write nothing outside the new block, and never change Google Ads, CallRail or Asana. Do the work in this session yourself; do not delegate to subagents.
 
 ## Sheets
 - Report sheet: spreadsheet id {{REPORT_SHEET_ID}}, tab Sheet1. Columns: A Date, B Account, C Health Status, D Updates / Discussion Items, E The Bad, F New Opportunities to bring up, G Pending EWISE / Philip, H Ref notes, I Numbers (auto), J Changes (auto). Row 1 is the header. If the header row does not match these ten names, stop and write one row after the header: A today's date, B "ROUTINE STOPPED", D the mismatch.
@@ -11,7 +11,7 @@ You are preparing Neil's internal notes sheet for his twice-weekly meeting with 
 
 ## Insert the new block
 4. Insert len(R)+1 empty rows at row 2 (use the Sheets insert-dimension tool, ROWS, startIndex 1). Rows 2..(2+len(R)-1) become the new block; the extra row is the run note.
-5. For each row of R, write into the new block at the same offset: A = today's date formatted like "October 9 2026"; B..H copied exactly from R; I and J blank for now.
+5. For each row of R, write into the new block at the same offset: A = today's date formatted like "October 9 2026"; B..H copied exactly from R; I and J blank for now. Write this copy immediately, before any data work, so the block exists even if a later step fails. Then, as each account row is computed, write that row's C, G, I and J right away (one update per row) rather than batching at the end.
 
 ## Per account row
 For each new-block row, let label = column B with any trailing " (Google)" or " (Bing)" removed, and kind = Google, Bing, or All.
@@ -30,9 +30,9 @@ For each new-block row, let label = column B with any trailing " (Google)" or " 
     `Ads: $578 (535) · 18 clicks (21) · conv 8 (11) = Time on Site 8 · CPL $289 · pacing 92%`
     `MTD: $1,920 vs LM-to-date $1,760 · leads 6 vs 5`
     Use "Ads: n/a" on Bing rows and "CallRail: none" when there is no account. Round money to whole dollars. On a Google row, if CallRail shows other Google sources (Google Local Services Ads, Google My Business), add them after the main line as "Also LSA 7 calls / 3 leads, GMB 11 / 2". If CallRail leads are 0 but calls > 0, add "Calls not yet scored in CallRail."
-11. J (Changes (auto)): one line per change event, newest first: `Oct 6 13:05 Residential: bidding Manual CPC → Max conversions tCPA $44 (neil@nrnglobal.ca)`; or `none`.
+11. J (Changes (auto)): only changes worth a sentence in a meeting, newest first, date only (no time), one line each: `Oct 6 Residential: bidding Manual CPC → Maximize conversions (neil@nrnglobal.ca)`. Include: bidding strategy type changes; campaign, ad group or asset group status changes (paused/enabled/removed); new campaigns, ad groups or asset groups; new ads or assets; keyword or negative keyword additions summarised as one line with a count (`Oct 6 Added 16 negatives to Shopping campaigns (ppc.marketing.services2k@gmail.com)`); any change made by someone who is not @nrnglobal.ca. Exclude: budget changes, bid amount changes, target CPA/ROAS value tweaks, and anything else that is a number nudge. Write `none` when nothing qualifies.
 12. C (Health Status): propose from leads and CPL of the current vs prior window. Poor? when leads fell more than 40%, or spend > 0 with zero leads, or pacing < 50%. Good? when leads ≥ prior and CPL ≤ 1.2 × prior CPL (Bing rows: leads ≥ prior). Okay? when both windows have zero leads and no spend, or when none of the above applies. Always end with "?". Pacing: ignore campaigns with zero spend in both windows when summing daily budgets, and name them in I as "idle".
-13. G (Pending EWISE / Philip): keep the copied text, then append on new lines `+ auto: <task name> (<assignee>, due <due_on>)` for each open task and `+ auto: email <date> <subject>` for each eWise thread. Do not append an item whose task name or subject already appears in the cell.
+13. G (Pending EWISE / Philip): keep the copied text, then append on new lines the open_tasks and ewise_threads lines from the Context tab, each prefixed `[auto] ` (never start a cell or line with +, =, or - : Sheets reads those as formulas). Do not append a line whose task name or email subject already appears in the cell.
 
 ## Finish
 14. Run-note row (the last row of the new block): A today's date, B "run note", D: run time, the windows used, rows skipped and why, any tool errors. Nothing else.

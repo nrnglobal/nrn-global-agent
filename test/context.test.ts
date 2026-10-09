@@ -49,11 +49,11 @@ import { contextRows } from "../src/tools/context.js";
 describe("contextRows", () => {
   it("renders one row per client with tasks and threads flattened to lines, header first", () => {
     const rows = contextRows([
-      { client_name: "IMS", report_label: "IMS", asana_project_gid: "1", open_tasks: [{ name: "Mgmt IMS", assignee: "Neil", due_on: "2026-10-13", modified_at: "x", permalink: "u" }], ewise_threads: [{ subject: "Re: phones", from: "Philip <p@ewisecommunications.com>", date: "Thu, 8 Oct 2026 10:00:00 -0400", snippet: "s", gmail_link: "g" }] },
+      { client_name: "IMS", report_label: "IMS", asana_project_gid: "1", open_tasks: [{ name: "Mgmt IMS", assignee: "Neil", due_on: "2026-10-13", modified_at: "x", permalink: "u" }], ewise_threads: [{ subject: "Re: phones", from: "Philip <p@ewisecommunications.com>", date: "Thu, 8 Oct 2026 10:00:00 -0400", snippet: "Still not working", gmail_link: "g" }] },
       { client_name: "NPDES", report_label: "NPDES", asana_project_gid: "2", open_tasks: [], ewise_threads: [] },
     ], "2026-10-06", "2026-10-09T12:45:00Z");
     expect(rows[0]).toEqual(["report_label", "client_name", "asana_project_gid", "since", "generated_at", "open_tasks", "ewise_threads"]);
-    expect(rows[1]).toEqual(["IMS", "IMS", "1", "2026-10-06", "2026-10-09T12:45:00Z", "Mgmt IMS (Neil, due 2026-10-13)", "email Oct 8 Re: phones (Philip)"]);
+    expect(rows[1]).toEqual(["IMS", "IMS", "1", "2026-10-06", "2026-10-09T12:45:00Z", "Mgmt IMS (Neil, due 2026-10-13)", "email Oct 8 Re: phones — last from Philip: Still not working"]);
     expect(rows[2]).toEqual(["NPDES", "NPDES", "2", "2026-10-06", "2026-10-09T12:45:00Z", "", ""]);
   });
 });

@@ -35,7 +35,7 @@ export function shapeTask(t: AsanaTask): ContextTask {
 }
 
 // Rows for the "Context (auto)" tab on the report sheet: one per client, tasks and threads flattened to one cell each.
-export type ContextThreadLite = { subject: string; from: string; date: string };
+export type ContextThreadLite = { subject: string; from: string; date: string; snippet?: string };
 export type ClientContextLite = { client_name: string; report_label?: string | null; asana_project_gid: string; open_tasks: ContextTask[]; ewise_threads: ContextThreadLite[] };
 
 function shortDate(rfc: string) {
@@ -49,6 +49,6 @@ export function contextRows(clients: ClientContextLite[], since: string, generat
   return [header, ...clients.map((c) => [
     c.report_label ?? "", c.client_name, c.asana_project_gid, since, generatedAt,
     c.open_tasks.map((t) => `${t.name} (${t.assignee ?? "unassigned"}, due ${t.due_on ?? "none"})`).join("\n"),
-    c.ewise_threads.map((t) => `email ${shortDate(t.date)} ${t.subject} (${fromName(t.from)})`).join("\n"),
+    c.ewise_threads.map((t) => `email ${shortDate(t.date)} ${t.subject} — last from ${fromName(t.from)}${t.snippet ? ": " + t.snippet.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&").slice(0, 140) : ""}`).join("\n"),
   ])];
 }
