@@ -50,6 +50,7 @@ Two tools can edit Google data: `sheet_update_client_field` (one field on one cl
 ```
 curl -H "X-Status-Token: …" https://<railway>/status | jq .runs
 ```
+`GET /context?asana_project_gid=<gid>&since=<YYYY-MM-DD>` (same `X-Status-Token`) returns a client's open Asana tasks (max 15) and eWise email threads since the date that mention the client (max 10). Read-only; used by the eWise report routine.
 
 ## Notes
 - Agent SDK option names (`systemPrompt`, `mcpServers`, `allowedTools`, `settingSources`, `permissionMode`) are current as of the SDK docs at build time; check `npm view @anthropic-ai/claude-agent-sdk` and the MCP page of the Agent SDK docs if a field is rejected.
