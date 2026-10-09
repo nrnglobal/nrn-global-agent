@@ -1,0 +1,45 @@
+import { describe, it, expect } from "vitest";
+import { isEwiseThread, mentionsClient, parseSince, shapeTask } from "../src/tools/context.js";
+
+describe("isEwiseThread", () => {
+  it("is true when any participant is at ewisecommunications.com, including Cc", () => {
+    expect(isEwiseThread(["neil@nrnglobal.ca", "lnye@ewisecommunications.com"])).toBe(true);
+    expect(isEwiseThread(["Neil <success@nrnglobal.ca>", "Philip <PSanders@EwiseCommunications.com>"])).toBe(true);
+  });
+  it("is false otherwise", () => {
+    expect(isEwiseThread(["neil@nrnglobal.ca", "dave@glasshousemedia.com"])).toBe(false);
+  });
+});
+
+describe("mentionsClient", () => {
+  const client = { client_name: "Optimum Pediatric Services", report_label: "OPS", domains: ["optimumpediatrics.com"] };
+  it("matches the client name, label as a word, or a domain, case-insensitively", () => {
+    expect(mentionsClient("Re: optimum pediatric services night nurse", client)).toBe(true);
+    expect(mentionsClient("OPS: new LP", client)).toBe(true);
+    expect(mentionsClient("see https://optimumpediatrics.com/night-nurse", client)).toBe(true);
+  });
+  it("does not match the label inside another word", () => {
+    expect(mentionsClient("Loops and hoops", client)).toBe(false);
+  });
+});
+
+describe("parseSince", () => {
+  const now = new Date("2026-10-09T13:00:00Z");
+  it("accepts an ISO date in the past", () => {
+    const r = parseSince("2026-10-06", now);
+    expect(r.ok && r.date.toISOString()).toBe("2026-10-06T00:00:00.000Z");
+  });
+  it("rejects missing, malformed, and future values", () => {
+    expect(parseSince(undefined, now).ok).toBe(false);
+    expect(parseSince("yesterday", now).ok).toBe(false);
+    expect(parseSince("2026-10-10", now).ok).toBe(false);
+  });
+});
+
+describe("shapeTask", () => {
+  it("flattens an Asana task to the context shape", () => {
+    expect(shapeTask({ gid: "1", name: "Fix LP", assignee: { name: "Neil" }, due_on: "2026-10-14", modified_at: "2026-10-08T12:00:00Z", permalink_url: "https://app.asana.com/0/1/1" }))
+      .toEqual({ name: "Fix LP", assignee: "Neil", due_on: "2026-10-14", modified_at: "2026-10-08T12:00:00Z", permalink: "https://app.asana.com/0/1/1" });
+    expect(shapeTask({ gid: "2", name: "x", modified_at: "2026-10-08T12:00:00Z", permalink_url: "u" }).assignee).toBeNull();
+  });
+});
