@@ -247,7 +247,7 @@ git commit -m "feat: context helpers with tests"
 - Modify: `README.md` (Status endpoint section)
 
 **Interfaces:**
-- Consumes: helpers from Task 2; `auth` from `src/tools/gmail.ts`; `asana(path)` from `src/tools/asana_slack.ts` (returns parsed JSON `{ data: ... }`); `db` from `src/tools/db.ts`.
+- Consumes: helpers from Task 2; `auth` from `src/tools/gmail.ts`; `asana(path)` from `src/tools/asana_slack.ts` (returns the response's `data` array/object directly); `db` from `src/tools/db.ts`.
 - Produces: `clientContext(asana_project_gid: string, since: Date): Promise<{ client: ClientRef & { asana_project_gid: string }; open_tasks: ContextTask[]; ewise_threads: ContextThread[] }>` where `ContextThread = { subject: string; from: string; date: string; snippet: string; gmail_link: string }`.
 
 - [ ] **Step 1: Append the loader to `src/tools/context.ts`**
@@ -274,7 +274,7 @@ export async function clientContext(asana_project_gid: string, since: Date) {
   const client: ClientRef & { asana_project_gid: string } = { asana_project_gid, client_name: row.client_name, domains: row.domains ?? [], report_label: labelCol >= 0 ? (sheetRow?.[labelCol] ? String(sheetRow[labelCol]) : null) : null };
 
   const tasks = await asana(`/tasks?project=${asana_project_gid}&completed_since=now&opt_fields=name,assignee.name,due_on,modified_at,permalink_url&limit=50`);
-  const open_tasks: ContextTask[] = ((tasks.data ?? []) as AsanaTask[])
+  const open_tasks: ContextTask[] = ((tasks ?? []) as AsanaTask[])
     .sort((a, b) => b.modified_at.localeCompare(a.modified_at)).slice(0, 15).map(shapeTask);
 
   const after = Math.floor(since.getTime() / 1000);
