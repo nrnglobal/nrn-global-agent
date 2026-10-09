@@ -42,6 +42,9 @@ curl -X POST -H "X-Run-Token: …" "https://<railway>/run/sync-clients"         
 ## Writing back to the sheet and briefs
 Two tools can edit Google data: `sheet_update_client_field` (one field on one client row: notes, contacts, associated_domains, brief_url, default_assignee) and `brief_append_note` (dated note at the end of a brief doc). Both refuse unless `agent_settings.google_writes` is `true` (seeded `false`) and both require Neil's approval of the exact change in #agent first (`ok <code>` on a `sheet_change` pending item). Every edit is logged with before/after. Flip the gate with `config_set google_writes true` or by reply in #agent.
 
+## eWise report routine
+A Claude cloud routine (claude.ai/code/routines, id `trig_01DLqZwoTPV4v57LQQdZFUdw`) runs Tuesday and Friday 09:00 America/Toronto (cron `0 13 * * 2,5` UTC in EDT; change to `0 14` after 2026-11-01). It reads the client sheet, CallRail and Google Ads through claude.ai connectors and `/context` on this service, and adds a dated block to the "EWISE Client Updates" sheet. Prompt: `routines/ewise-report.prompt.md` (edit there, substitute `{{REPORT_SHEET_ID}}` and `{{STATUS_TOKEN}}`, then update the routine). It never writes to Ads, CallRail or Asana. Dry-run copy of the sheet: `1AIBgsAZE2_T_bIIaIdgzNL8qIM6-1QWDBzb7NjNmKx4`.
+
 ## Client briefs
 `brief_url` on a client row links a Google Doc. The agent reads it with `client_brief_get(asana_project_gid)` (`src/tools/brief.ts`) for context before it classifies or drafts. Share each brief with success@ (viewer). The tool only opens docs linked from `agent_clients`, and the system prompt bars brief contents from client-facing text.
 
