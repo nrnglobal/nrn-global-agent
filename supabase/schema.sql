@@ -104,3 +104,12 @@ select cron.schedule('agent-brief', '0 12 * * 1-5', $$
     body := '{}'::jsonb
   );
 $$);
+
+-- eWise context tab for the report routine: Tue/Fri 08:45 America/Toronto = 12:45 UTC (EDT) / 13:45 UTC (EST).
+select cron.schedule('agent-ewise-context', '45 12 * * 2,5', $$
+  select net.http_post(
+    url := 'https://YOUR-APP.up.railway.app/run/ewise-context',
+    headers := '{"X-Run-Token":"REPLACE_ME"}'::jsonb,
+    body := '{}'::jsonb
+  );
+$$);
