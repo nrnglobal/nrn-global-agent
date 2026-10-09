@@ -29,9 +29,9 @@ For each new-block row, let label = column B with any trailing " (Google)" or " 
     `CallRail: 7 calls (5) · 5 answered · 2 missed · 3 first-time · 2 leads (1) · 1 form (0)`
     `Ads: $578 (535) · 18 clicks (21) · conv 8 (11) = Time on Site 8 · CPL $289 · pacing 92%`
     `MTD: $1,920 vs LM-to-date $1,760 · leads 6 vs 5`
-    Use "Ads: n/a" on Bing rows and "CallRail: none" when there is no account. Round money to whole dollars.
+    Use "Ads: n/a" on Bing rows and "CallRail: none" when there is no account. Round money to whole dollars. On a Google row, if CallRail shows other Google sources (Google Local Services Ads, Google My Business), add them after the main line as "Also LSA 7 calls / 3 leads, GMB 11 / 2". If CallRail leads are 0 but calls > 0, add "Calls not yet scored in CallRail."
 11. J (Changes (auto)): one line per change event, newest first: `Oct 6 13:05 Residential: bidding Manual CPC → Max conversions tCPA $44 (neil@nrnglobal.ca)`; or `none`.
-12. C (Health Status): propose from leads and CPL of the current vs prior window. Poor? when leads fell more than 40%, or spend > 0 with zero leads, or pacing < 50%. Good? when leads ≥ prior and CPL ≤ 1.2 × prior CPL (Bing rows: leads ≥ prior). Otherwise Okay?. Always end with "?".
+12. C (Health Status): propose from leads and CPL of the current vs prior window. Poor? when leads fell more than 40%, or spend > 0 with zero leads, or pacing < 50%. Good? when leads ≥ prior and CPL ≤ 1.2 × prior CPL (Bing rows: leads ≥ prior). Okay? when both windows have zero leads and no spend, or when none of the above applies. Always end with "?". Pacing: ignore campaigns with zero spend in both windows when summing daily budgets, and name them in I as "idle".
 13. G (Pending EWISE / Philip): keep the copied text, then append on new lines `+ auto: <task name> (<assignee>, due <due_on>)` for each open task and `+ auto: email <date> <subject>` for each eWise thread. Do not append an item whose task name or subject already appears in the cell.
 
 ## Finish
