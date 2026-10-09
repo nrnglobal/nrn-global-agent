@@ -22,7 +22,7 @@ For each new-block row, let label = column B with any trailing " (Google)" or " 
    - `SELECT segments.conversion_action_name, metrics.conversions FROM campaign WHERE segments.date BETWEEN '<start>' AND '<end>' AND metrics.conversions > 0` for the current window.
    - `SELECT change_event.change_date_time, change_event.change_resource_type, change_event.resource_change_operation, change_event.changed_fields, change_event.user_email, change_event.old_resource, change_event.new_resource FROM change_event WHERE change_event.change_date_time >= '<start> 00:00:00' AND change_event.change_date_time <= '<end> 23:59:59' ORDER BY change_event.change_date_time DESC LIMIT 100`.
    Spend = cost_micros/1e6. Pacing = spend ÷ (sum of daily budgets × days in window). Conversions that are not calls or forms (e.g. "Time on Site") are listed but not counted as leads.
-9. Context: GET https://nrn-global-agent-production.up.railway.app/context?asana_project_gid=<gid>&since=<D as YYYY-MM-DD> with header X-Status-Token: {{STATUS_TOKEN}}. If the request fails, note it in I and continue.
+9. Context: read the tab "Context (auto)" on the report sheet (range A:G; header row report_label, client_name, asana_project_gid, since, generated_at, open_tasks, ewise_threads). Find the row whose report_label equals label; open_tasks and ewise_threads are newline-separated lines ready to append. If the tab is missing, or its generated_at is older than 24 hours, write "context stale/missing" at the end of I and append nothing to G.
 
 ## Write the row
 10. I (Numbers (auto)), three lines, prior-window values in brackets:
